@@ -14,7 +14,7 @@ namespace NoteApp.Controllers
         [HttpPost]
         public ActionResult Registration(string login, [FromBody] string password)
         {
-            // Исключения + подумать про ограничения для логина/пароля
+            // проверку бы на повторяющийся логин
             Users.Add(new User
             {
                 Id = Users.Count,
