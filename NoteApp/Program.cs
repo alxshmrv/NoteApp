@@ -1,15 +1,20 @@
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
+using NoteApp;
+using NoteApp.Abstractions;
 using NoteApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services
+    .AddSwagger()
+    .AddApplicationServices()
+    .AddControllers();
+
 builder.Services.Configure<JsonOptions>(options =>
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-builder.Services.AddExceptionHandler<ExceptionHandler>();
+
 var app = builder.Build();
+
 app.UseExceptionHandler("/error");
 
 if (app.Environment.IsDevelopment())

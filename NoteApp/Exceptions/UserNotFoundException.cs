@@ -1,4 +1,4 @@
-﻿namespace NoteApp.Exeptions
+﻿namespace NoteApp.Exceptions
 {
     public class UserNotFoundException : Exception
     {

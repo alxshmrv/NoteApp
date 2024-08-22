@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NoteApp.Exeptions;
+using NoteApp.Abstractions;
+using NoteApp.Exceptions;
 using NoteApp.Models;
 
 namespace NoteApp.Controllers
@@ -8,30 +9,32 @@ namespace NoteApp.Controllers
     [Route("api/[controller]")]
     public class UserController : Controller
     {
-        public static readonly List<User> Users = new();
+        private readonly IUserRepository _userRepository;
+
+        public UserController(IUserRepository userRepository)
+        => _userRepository = userRepository;
+
         [HttpGet]
-        public List<User> GetUsers() => Users;
+        public IEnumerable<User> GetUsers() => _userRepository.GetUsers();
+
+        [HttpGet("by_login")]
+        public User? GetUserBy(string login)
+            =>_userRepository.GetUserBy(user => user.Login == login.Trim());
+
         [HttpPost]
         public ActionResult Registration(string login, [FromBody] string password)
         {
-            // проверку бы на повторяющийся логин
-            Users.Add(new User
-            {
-                Id = Users.Count,
-                Login = login.Trim(),
-                Password = password.Trim()
-            });
+            _userRepository.Registration(login.Trim(), password.Trim());
+            
             return Ok();
         }
-        public static User TryGetUserAndThrowIfNotFound(int id)
-        {
-            var user = Users.FirstOrDefault(user => user.Id == id);
-            if (user is null)
-            {
-                throw new UserNotFoundException(id);
-            }
 
-            return user;
+        [HttpDelete("{id}")]
+        public ActionResult DeleteUser(int id)
+        {
+            _userRepository.DeleteUser(id);
+
+            return NoContent();
         }
     }
 }

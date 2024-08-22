@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using NoteApp.Exceptions;
-using NoteApp.Exeptions;
 using System.Net;
 using System.Net.Mime;
 

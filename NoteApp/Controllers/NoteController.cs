@@ -2,16 +2,30 @@
 using NoteApp.Models;
 using NoteApp.Controllers;
 using NoteApp.Exceptions;
+using NoteApp.Abstractions;
 namespace NoteApp.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class NoteController : Controller
     {
-        public static readonly List<Note> Notes = new();
-        [HttpGet]
-        public List<Note> GetNotes() => Notes;
-        [HttpPost]
+        private readonly INoteRepository _noteRepository;
+        public NoteController(INoteRepository noteRepository)
+            => _noteRepository = noteRepository;
+
+
+        [HttpGet("{userId}")]
+        public IEnumerable<Note> GetNotes(int userId) => _noteRepository.GetNotes(userId);
+
+        [HttpGet("by_name")]
+        public Note? GetNoteBy(string name, int userId)
+        {
+
+            return _noteRepository.GetNoteBy(note => note.Name == name.Trim(),
+                userId);
+        }
+
+        [HttpPost("{userId}")]
         public ActionResult AddNote(
             string name,
             bool isCompleted,
@@ -19,51 +33,30 @@ namespace NoteApp.Controllers
             Priority priority,
             string? descriprion = null)
         {
-            var owner = UserController.TryGetUserAndThrowIfNotFound(userId);
-            Notes.Add(new Note
-            {
-                Id = Notes.Count,
-                Name = name.Trim(),
-                IsCompleted = isCompleted,
-                Priority = priority,
-                CreationDate = DateTime.Now,
-                LastModifiedDate = DateTime.Now,
-                Owner = owner,
-                Description = descriprion
-            });
+            _noteRepository.AddNote(name.Trim(), isCompleted, userId, priority, descriprion);
             return Ok();
         }
-        [HttpPut]
+
+        [HttpPut("{userId}")]
         public ActionResult UpdateNote(
             int id,
+            int userId,
             string name,
             bool isCompleted,
             Priority priority,
             string? descriprion = null)
         {
-            var noteForUpdate = TryGetNoteAndThrowIfNotFound(id);
-            noteForUpdate.Name = name.Trim();
-            noteForUpdate.IsCompleted = isCompleted;
-            noteForUpdate.Priority = priority;
-            noteForUpdate.Description = descriprion;
-            noteForUpdate.LastModifiedDate = DateTime.Now;
+            _noteRepository.UpdateNote(id, userId, name, isCompleted, priority, descriprion);
             return Ok();
         }
-        [HttpDelete("{id}")]
-        public ActionResult DeleteNote(int id)
+
+        [HttpDelete("{userId}")]
+        public ActionResult DeleteNote(int id, int userId)
         {
-            var noteForDelete = TryGetNoteAndThrowIfNotFound(id);
-            Notes.Remove(noteForDelete);
+            _noteRepository.DeleteNote(id, userId);
             return NoContent();
         }
-        public static Note TryGetNoteAndThrowIfNotFound(int id)
-        {
-            var note = Notes.FirstOrDefault(n => n.Id == id);
-            if (note == null)
-            {
-                throw new NoteNotFoundException(id);
-            }
-            return note;
-        }
+
     }
 }
+
