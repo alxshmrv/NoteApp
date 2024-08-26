@@ -1,6 +1,6 @@
 ﻿using NoteApp.Abstractions;
 
-namespace NoteApp.Services
+namespace NoteApp.Services.Extentions
 {
     public static class UserRepositoryExtention
     {

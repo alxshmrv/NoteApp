@@ -1,9 +1,9 @@
-﻿namespace NoteApp.Models
+﻿namespace NoteApp.Models.DbSet
 {
     public class User
     {
         public int Id { get; set; }
-        public string Login {  get; set; }
+        public string Login { get; set; }
         // Ограничения: не больше n символов, не содержит символы, без пробелов внутри, !null
 
         public string Password { get; set; }

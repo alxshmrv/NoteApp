@@ -1,12 +1,17 @@
-﻿using NoteApp.Models;
-using NoteApp.Exceptions;
+﻿using NoteApp.Exceptions;
 using NoteApp.Abstractions;
+using NoteApp.Models.DbSet;
 
 namespace NoteApp.Services
 {
     public class UserRepository : IUserRepository
     {
+        private readonly ITimeProvider _timeProvider;
         private readonly List<User> _users = new();
+        public UserRepository(ITimeProvider timeProvider)
+        {
+            _timeProvider = timeProvider;
+        }
         public IEnumerable<User> GetUsers() => _users;
 
         public User? GetUserBy(Predicate<User> predicate)

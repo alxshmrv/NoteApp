@@ -1,4 +1,5 @@
 ﻿using NoteApp.Services;
+using NoteApp.Services.Extentions;
 namespace NoteApp
 {
     public static class Composer
@@ -18,6 +19,8 @@ namespace NoteApp
             services.AddUserRepository();
 
             services.AddNoteRepository();
+
+            services.AddTimeProvider();
 
             return services;
         }

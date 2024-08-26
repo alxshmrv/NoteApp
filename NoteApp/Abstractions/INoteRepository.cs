@@ -1,4 +1,4 @@
-﻿using NoteApp.Models;
+﻿using NoteApp.Models.DbSet;
 
 namespace NoteApp.Abstractions
 {
@@ -8,19 +8,13 @@ namespace NoteApp.Abstractions
 
         Note? GetNoteBy(Predicate<Note> predicate, int userId);
 
-        void AddNote(string name,
-            bool isCompleted,
-            int userId,
-            Priority priority,
-            string? descriprion = null);
+        void AddNote(int userId,
+            Note note);
 
         void UpdateNote(
             int id,
             int userId,
-            string name,
-            bool isCompleted,
-            Priority priority,
-            string? descriprion = null);
+            Note newNote);
 
         void DeleteNote(int id, int userId);
     }

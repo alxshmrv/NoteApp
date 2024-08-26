@@ -1,4 +1,4 @@
-﻿namespace NoteApp.Models;
+﻿namespace NoteApp.Models.DbSet;
 
 public enum Priority
 {

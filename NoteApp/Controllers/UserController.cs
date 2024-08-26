@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NoteApp.Abstractions;
 using NoteApp.Exceptions;
-using NoteApp.Models;
+using NoteApp.Models.DbSet;
 
 namespace NoteApp.Controllers
 {
@@ -9,10 +9,15 @@ namespace NoteApp.Controllers
     [Route("api/[controller]")]
     public class UserController : Controller
     {
+        private readonly ITimeProvider _timeProvider;
         private readonly IUserRepository _userRepository;
 
-        public UserController(IUserRepository userRepository)
-        => _userRepository = userRepository;
+        public UserController(IUserRepository userRepository, ITimeProvider timeProvider)
+        {
+            _timeProvider = timeProvider;
+            _userRepository = userRepository;
+        }
+
 
         [HttpGet]
         public IEnumerable<User> GetUsers() => _userRepository.GetUsers();

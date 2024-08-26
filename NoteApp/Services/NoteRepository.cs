@@ -1,18 +1,22 @@
-﻿using NoteApp.Models;
-using NoteApp.Exceptions;
+﻿using NoteApp.Exceptions;
 using NoteApp.Abstractions;
+using NoteApp.Models.DbSet;
+using System;
 
 
 namespace NoteApp.Services
 {
     public class NoteRepository : INoteRepository
     {
+        private readonly ITimeProvider _timeProvider;
         private readonly IUserRepository _userRepository;
-        public NoteRepository(IUserRepository userRepository)
+        private readonly List<Note> _notes = new();
+
+        public NoteRepository(IUserRepository userRepository, ITimeProvider timeProvider)
         {
             _userRepository = userRepository;
+            _timeProvider = timeProvider;
         }
-        private readonly List<Note> _notes = new();
         public IEnumerable<Note> GetNotes(int userId)
         {
             _ = _userRepository.TryGetUserByIdAndThrowIfNotFound(userId);
@@ -25,24 +29,20 @@ namespace NoteApp.Services
             return _notes.FirstOrDefault(note => predicate(note));
         }
 
-        public void AddNote(
-            string name,
-            bool isCompleted,
-            int userId,
-            Priority priority,
-            string? descriprion = null)
+        public void AddNote(int userId,
+            Note note)
         {
             var owner = _userRepository.TryGetUserByIdAndThrowIfNotFound(userId);
             _notes.Add(new Note
             {
                 Id = _notes.Count,
-                Name = name.Trim(),
-                IsCompleted = isCompleted,
-                Priority = priority,
-                CreationDate = DateTime.Now,
-                LastModifiedDate = DateTime.Now,
+                Name = note.Name,
+                IsCompleted = note.IsCompleted,
+                Priority = note.Priority,
+                CreationDate = note.CreationDate,
+                LastModifiedDate = note.CreationDate,
                 Owner = owner,
-                Description = descriprion
+                Description = note.Description
             });
 
         }
@@ -50,19 +50,16 @@ namespace NoteApp.Services
         public void UpdateNote(
             int id,
             int userId,
-            string name,
-            bool isCompleted,
-            Priority priority,
-            string? descriprion = null)
+            Note newNote)
         {
-            // Нет проверки на то, что юзер именно свою заметку редачит?
             _ = _userRepository.TryGetUserByIdAndThrowIfNotFound(userId);
-            var note = TryGetNoteByIdAndThrowIfNotFound(id);
-            note.Id = id;
-            note.Name = name;
-            note.IsCompleted = isCompleted;
-            note.Priority = priority;
-            note.Description = descriprion;
+           var note = TryGetNoteByIdAndThrowIfNotFound(id);
+            //note.Id = id;
+            //note.Name = note.Name;
+           // note.IsCompleted = isCompleted;
+            //note.Priority = priority;
+           // note.Description = descriprion;
+           note.LastModifiedDate = note.CreationDate;
         }
 
         public void DeleteNote(int id, int userId)

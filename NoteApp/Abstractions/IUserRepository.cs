@@ -1,4 +1,4 @@
-﻿using NoteApp.Models;
+﻿using NoteApp.Models.DbSet;
 
 namespace NoteApp.Abstractions
 {

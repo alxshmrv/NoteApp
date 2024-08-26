@@ -1,39 +1,43 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NoteApp.Models;
 using NoteApp.Controllers;
 using NoteApp.Exceptions;
 using NoteApp.Abstractions;
+using NoteApp.Models.DbSet;
+using AutoMapper;
+using NoteApp.Models.Vms;
+using NoteApp.Models.Dtos;
 namespace NoteApp.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class NoteController : Controller
     {
+        private readonly ITimeProvider _timeProvider;
         private readonly INoteRepository _noteRepository;
-        public NoteController(INoteRepository noteRepository)
-            => _noteRepository = noteRepository;
+        private readonly IMapper _mapper;
+        public NoteController(INoteRepository noteRepository, IMapper mapper, ITimeProvider timeProvider)
+        { _noteRepository = noteRepository; 
+            _mapper = mapper;
+            _timeProvider = timeProvider;
+        } 
 
 
         [HttpGet("{userId}")]
         public IEnumerable<Note> GetNotes(int userId) => _noteRepository.GetNotes(userId);
 
         [HttpGet("by_name")]
-        public Note? GetNoteBy(string name, int userId)
+        public ActionResult<Note?> GetNoteBy(string name, int userId)
         {
 
-            return _noteRepository.GetNoteBy(note => note.Name == name.Trim(),
-                userId);
+            return Ok(_noteRepository.GetNoteBy(note => note.Name == name.Trim(),
+                userId));
         }
 
         [HttpPost("{userId}")]
-        public ActionResult AddNote(
-            string name,
-            bool isCompleted,
-            int userId,
-            Priority priority,
-            string? descriprion = null)
+        public ActionResult AddNote(int userId, CreateNoteDto createNoteDto)
         {
-            _noteRepository.AddNote(name.Trim(), isCompleted, userId, priority, descriprion);
+            var note = _mapper.Map<Note>(createNoteDto);
+            _noteRepository.AddNote( userId, note);
             return Ok();
         }
 
@@ -41,12 +45,10 @@ namespace NoteApp.Controllers
         public ActionResult UpdateNote(
             int id,
             int userId,
-            string name,
-            bool isCompleted,
-            Priority priority,
-            string? descriprion = null)
+            EditNoteDto editNoteDto)
         {
-            _noteRepository.UpdateNote(id, userId, name, isCompleted, priority, descriprion);
+            var note = _mapper.Map<Note>(editNoteDto);
+            _noteRepository.UpdateNote(id, userId, note);
             return Ok();
         }
 
