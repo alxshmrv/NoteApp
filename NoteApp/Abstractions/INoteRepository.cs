@@ -1,4 +1,5 @@
 ﻿using NoteApp.Models.DbSet;
+using NoteApp.Models.Vms;
 
 namespace NoteApp.Abstractions
 {
@@ -6,7 +7,7 @@ namespace NoteApp.Abstractions
     {
         IEnumerable<Note> GetNotes(int userId);
 
-        Note? GetNoteBy(Predicate<Note> predicate, int userId);
+        Note? GetNoteBy(int id, int userId);
 
         void AddNote(int userId,
             Note note);

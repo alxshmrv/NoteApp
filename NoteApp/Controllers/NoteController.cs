@@ -6,6 +6,7 @@ using NoteApp.Models.DbSet;
 using AutoMapper;
 using NoteApp.Models.Vms;
 using NoteApp.Models.Dtos;
+using NoteApp.Services;
 namespace NoteApp.Controllers
 {
     [ApiController]
@@ -15,29 +16,37 @@ namespace NoteApp.Controllers
         private readonly ITimeProvider _timeProvider;
         private readonly INoteRepository _noteRepository;
         private readonly IMapper _mapper;
+
         public NoteController(INoteRepository noteRepository, IMapper mapper, ITimeProvider timeProvider)
-        { _noteRepository = noteRepository; 
+        {
+            _noteRepository = noteRepository;
             _mapper = mapper;
             _timeProvider = timeProvider;
-        } 
+        }
 
 
         [HttpGet("{userId}")]
-        public IEnumerable<Note> GetNotes(int userId) => _noteRepository.GetNotes(userId);
-
-        [HttpGet("by_name")]
-        public ActionResult<Note?> GetNoteBy(string name, int userId)
+        public ActionResult<NoteListVm> GetNotes(int userId)
         {
+            var userNotes = _noteRepository.GetNotes(userId);
+            var mappedUserNotes = _mapper.Map<NoteListVm>(userNotes);
+            return Ok(mappedUserNotes);
 
-            return Ok(_noteRepository.GetNoteBy(note => note.Name == name.Trim(),
-                userId));
+        }
+
+        [HttpGet("by_id")]
+        public ActionResult<DetailedNoteVm> GetNoteBy(int id, int userId)
+        {
+            var userNote = _noteRepository.GetNoteBy(id, userId);
+            var mappedUserNote = _mapper.Map<DetailedNoteVm>(userNote);
+            return Ok(mappedUserNote);
         }
 
         [HttpPost("{userId}")]
         public ActionResult AddNote(int userId, CreateNoteDto createNoteDto)
         {
             var note = _mapper.Map<Note>(createNoteDto);
-            _noteRepository.AddNote( userId, note);
+            _noteRepository.AddNote(userId, note);
             return Ok();
         }
 

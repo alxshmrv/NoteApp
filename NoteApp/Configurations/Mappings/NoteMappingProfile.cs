@@ -15,11 +15,17 @@ namespace NoteApp.Configurations.Mappings
 
             CreateMap<Note, DetailedNoteVm>();
 
-            CreateMap<EditNoteDto, Note>();
+            CreateMap<IEnumerable<Note>, NoteListVm>()
+                .ForCtorParam(nameof(NoteListVm.Notes),
+                source => source.MapFrom(s => s));
+
+            CreateMap<EditNoteDto, Note>()
+                .ForMember(dest => dest.LastModifiedDate,
+                source => source.MapFrom(s => timeProvider.UtcNow));
 
             CreateMap<CreateNoteDto, Note>()
                 .ForMember(dest => dest.Id,
-                source => source.Ignore()) // подойдет дефолтное значение, потому что не будем использовать его
+                source => source.Ignore()) 
                 .ForMember(dest => dest.Name,
                 source => source.MapFrom(s => s.Name.Trim()))
                 .ForMember(dest => dest.Description,

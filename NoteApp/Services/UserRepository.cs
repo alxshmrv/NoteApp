@@ -7,11 +7,14 @@ namespace NoteApp.Services
     public class UserRepository : IUserRepository
     {
         private readonly ITimeProvider _timeProvider;
+
         private readonly List<User> _users = new();
+
         public UserRepository(ITimeProvider timeProvider)
         {
             _timeProvider = timeProvider;
         }
+
         public IEnumerable<User> GetUsers() => _users;
 
         public User? GetUserBy(Predicate<User> predicate)
@@ -31,6 +34,7 @@ namespace NoteApp.Services
             user.Login = login;
             user.Password = password;
         }
+
         public void DeleteUser(int id)
         {
             var user = TryGetUserByIdAndThrowIfNotFound(id);

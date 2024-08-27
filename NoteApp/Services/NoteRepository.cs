@@ -2,6 +2,7 @@
 using NoteApp.Abstractions;
 using NoteApp.Models.DbSet;
 using System;
+using NoteApp.Models.Vms;
 
 
 namespace NoteApp.Services
@@ -17,16 +18,19 @@ namespace NoteApp.Services
             _userRepository = userRepository;
             _timeProvider = timeProvider;
         }
+
         public IEnumerable<Note> GetNotes(int userId)
         {
             _ = _userRepository.TryGetUserByIdAndThrowIfNotFound(userId);
-            return _notes;
+            var notes = _notes.Where(n => n.Owner.Id == userId);
+            return notes;
         }
 
-        public Note? GetNoteBy(Predicate<Note> predicate, int userId)
+        public Note? GetNoteBy(int id, int userId)
         {
             _ = _userRepository.TryGetUserByIdAndThrowIfNotFound(userId);
-            return _notes.FirstOrDefault(note => predicate(note));
+            var note = TryGetNoteByIdAndThrowIfNotFound(id);
+            return note;
         }
 
         public void AddNote(int userId,
@@ -53,13 +57,13 @@ namespace NoteApp.Services
             Note newNote)
         {
             _ = _userRepository.TryGetUserByIdAndThrowIfNotFound(userId);
-           var note = TryGetNoteByIdAndThrowIfNotFound(id);
-            //note.Id = id;
-            //note.Name = note.Name;
-           // note.IsCompleted = isCompleted;
-            //note.Priority = priority;
-           // note.Description = descriprion;
-           note.LastModifiedDate = note.CreationDate;
+            var note = TryGetNoteByIdAndThrowIfNotFound(id);
+            note.Id = newNote.Id;
+            note.Name = newNote.Name.Trim();
+            note.IsCompleted = newNote.IsCompleted;
+            note.Priority = newNote.Priority;
+            note.Description = newNote.Description;
+            note.LastModifiedDate = newNote.LastModifiedDate;
         }
 
         public void DeleteNote(int id, int userId)
