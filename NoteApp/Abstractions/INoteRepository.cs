@@ -1,5 +1,5 @@
 ﻿using NoteApp.Models.DbSet;
-using NoteApp.Models.Vms;
+using NoteApp.Models.Contracts;
 
 namespace NoteApp.Abstractions
 {
@@ -9,7 +9,7 @@ namespace NoteApp.Abstractions
 
         Note? GetNoteBy(int id, int userId);
 
-        void AddNote(int userId,
+        int AddNote(int userId,
             Note note);
 
         void UpdateNote(

@@ -2,7 +2,8 @@
 using NoteApp.Abstractions;
 using NoteApp.Models.DbSet;
 using System;
-using NoteApp.Models.Vms;
+using NoteApp.Models.Contracts;
+using NoteApp.Database;
 
 
 namespace NoteApp.Services
@@ -11,18 +12,19 @@ namespace NoteApp.Services
     {
         private readonly ITimeProvider _timeProvider;
         private readonly IUserRepository _userRepository;
-        private readonly List<Note> _notes = new();
+        private readonly NoteAppDbContext _dbContext;
 
-        public NoteRepository(IUserRepository userRepository, ITimeProvider timeProvider)
+        public NoteRepository(IUserRepository userRepository, ITimeProvider timeProvider, NoteAppDbContext dbContext)
         {
             _userRepository = userRepository;
             _timeProvider = timeProvider;
+            _dbContext = dbContext;
         }
 
         public IEnumerable<Note> GetNotes(int userId)
         {
             _ = _userRepository.TryGetUserByIdAndThrowIfNotFound(userId);
-            var notes = _notes.Where(n => n.Owner.Id == userId);
+            var notes = _dbContext.Notes.Where(n => n.Owner.Id == userId);
             return notes;
         }
 
@@ -33,21 +35,14 @@ namespace NoteApp.Services
             return note;
         }
 
-        public void AddNote(int userId,
+        public int AddNote(int userId,
             Note note)
         {
             var owner = _userRepository.TryGetUserByIdAndThrowIfNotFound(userId);
-            _notes.Add(new Note
-            {
-                Id = _notes.Count,
-                Name = note.Name,
-                IsCompleted = note.IsCompleted,
-                Priority = note.Priority,
-                CreationDate = note.CreationDate,
-                LastModifiedDate = note.CreationDate,
-                Owner = owner,
-                Description = note.Description
-            });
+            note.Owner = owner;
+            _dbContext.Notes.Add(note);
+            _dbContext.SaveChanges();
+            return note.Id;
 
         }
 
@@ -70,12 +65,12 @@ namespace NoteApp.Services
         {
             _ = _userRepository.TryGetUserByIdAndThrowIfNotFound(userId);
             var note = TryGetNoteByIdAndThrowIfNotFound(id);
-            _notes.Remove(note);
+            _dbContext.Notes.Remove(note);
         }
 
         private Note TryGetNoteByIdAndThrowIfNotFound(int id)
         {
-            var note = _notes.FirstOrDefault(note => note.Id == id);
+            var note = _dbContext.Notes.FirstOrDefault(note => note.Id == id);
             if (note == null)
             {
                 throw new NoteNotFoundException(id);

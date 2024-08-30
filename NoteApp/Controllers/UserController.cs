@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using NoteApp.Abstractions;
 using NoteApp.Exceptions;
+using NoteApp.Models.Contracts;
 using NoteApp.Models.DbSet;
 
 namespace NoteApp.Controllers
@@ -11,27 +13,51 @@ namespace NoteApp.Controllers
     {
         private readonly ITimeProvider _timeProvider;
         private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
 
-        public UserController(IUserRepository userRepository, ITimeProvider timeProvider)
+        public UserController(IUserRepository userRepository, ITimeProvider timeProvider, IMapper mapper)
         {
             _timeProvider = timeProvider;
             _userRepository = userRepository;
+            _mapper = mapper;
         }
 
 
         [HttpGet]
-        public IEnumerable<User> GetUsers() => _userRepository.GetUsers();
+        public ActionResult<ListOfUsers> GetUsers()
+        {
+            var users = _userRepository.GetUsers();
+            return Ok(_mapper.Map<ListOfUsers>(users));
+        }
 
         [HttpGet("by_login")]
-        public User? GetUserBy(string login)
-            =>_userRepository.GetUserBy(user => user.Login == login.Trim());
+        public ActionResult GetUserBy(string login)
+        {
+            var user = _userRepository.GetUserByLogin(login);
+
+            if (user == null)
+            {
+                return NotFound(login);
+            }
+            return Ok(_mapper.Map<UserVm>(user));
+        }
 
         [HttpPost]
-        public ActionResult Registration(string login, [FromBody] string password)
+        public ActionResult<int> Registration(CreateUserDto dto)
         {
-            _userRepository.Registration(login.Trim(), password.Trim());
-            
-            return Ok();
+            var newUser = _mapper.Map<User>(dto);
+
+            var userId = _userRepository.Registration(newUser);
+            return Ok(userId);
+        }
+
+        [HttpPut("{id}")]
+        public ActionResult UpdateUser(int id, UpdateUserDto dto)
+        {
+            var updatedUser = _mapper.Map<User>((id, dto));
+            _userRepository.UpdateUser(updatedUser);
+
+            return NoContent();
         }
 
         [HttpDelete("{id}")]

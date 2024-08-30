@@ -4,9 +4,8 @@ using NoteApp.Exceptions;
 using NoteApp.Abstractions;
 using NoteApp.Models.DbSet;
 using AutoMapper;
-using NoteApp.Models.Vms;
-using NoteApp.Models.Dtos;
 using NoteApp.Services;
+using NoteApp.Models.Contracts;
 namespace NoteApp.Controllers
 {
     [ApiController]
@@ -43,11 +42,13 @@ namespace NoteApp.Controllers
         }
 
         [HttpPost("{userId}")]
-        public ActionResult AddNote(int userId, CreateNoteDto createNoteDto)
+        public ActionResult<int> AddNote(int userId, CreateNoteDto createNoteDto)
         {
-            var note = _mapper.Map<Note>(createNoteDto);
-            _noteRepository.AddNote(userId, note);
-            return Ok();
+            var note = _mapper.Map<Note>(createNoteDto);    
+            
+            var noteId = _noteRepository.AddNote(userId, note);
+
+            return Ok(noteId);
         }
 
         [HttpPut("{userId}")]

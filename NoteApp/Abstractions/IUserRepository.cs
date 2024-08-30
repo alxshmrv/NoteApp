@@ -6,11 +6,12 @@ namespace NoteApp.Abstractions
     {
         IEnumerable<User> GetUsers();
 
-        User? GetUserBy(Predicate<User> predicate);
+        User? GetUserById(int id);
+        User? GetUserByLogin(string login);
 
-        void Registration(string login, string password);
+        int Registration(User user);
 
-        void UpdateUser(int id, string login, string password);
+        void UpdateUser(User user);
 
         void DeleteUser(int id);
         User TryGetUserByIdAndThrowIfNotFound(int id);

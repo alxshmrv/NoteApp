@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
 using NoteApp.Abstractions;
+using NoteApp.Models.Contracts;
 using NoteApp.Models.DbSet;
-using NoteApp.Models.Dtos;
-using NoteApp.Models.Vms;
 
 namespace NoteApp.Configurations.Mappings
 {

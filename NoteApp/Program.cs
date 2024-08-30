@@ -8,7 +8,7 @@ using NoteApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services
-    .AddSwagger()
+    .AddInfrastructure()
     .AddApplicationServices()
     .AddControllers();
 

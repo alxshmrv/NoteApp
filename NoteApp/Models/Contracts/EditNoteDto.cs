@@ -1,6 +1,6 @@
 ﻿using NoteApp.Models.DbSet;
 
-namespace NoteApp.Models.Dtos
+namespace NoteApp.Models.Contracts
 {
     public record EditNoteDto(
         string Name,

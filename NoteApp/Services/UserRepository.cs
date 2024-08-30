@@ -1,6 +1,7 @@
 ﻿using NoteApp.Exceptions;
 using NoteApp.Abstractions;
 using NoteApp.Models.DbSet;
+using NoteApp.Database;
 
 namespace NoteApp.Services
 {
@@ -8,42 +9,48 @@ namespace NoteApp.Services
     {
         private readonly ITimeProvider _timeProvider;
 
-        private readonly List<User> _users = new();
+        private readonly NoteAppDbContext _dbContext;
 
-        public UserRepository(ITimeProvider timeProvider)
+        public UserRepository(ITimeProvider timeProvider, NoteAppDbContext dbContext)
         {
             _timeProvider = timeProvider;
+            _dbContext = dbContext;
         }
 
-        public IEnumerable<User> GetUsers() => _users;
+        public IEnumerable<User> GetUsers() => _dbContext.Users;
 
-        public User? GetUserBy(Predicate<User> predicate)
-        => _users.FirstOrDefault(user => predicate(user));
+        public User? GetUserById(int id)
+             => _dbContext.Users.FirstOrDefault(user => user.Id == id);
 
-        public void Registration(string login, string password) =>
-            _users.Add(new User
-            {
-                Id = _users.Count,
-                Login = login,
-                Password = password
-            });
+        public User? GetUserByLogin(string login)
+            => _dbContext.Users.FirstOrDefault(user => user.Login == login.Trim());
 
-        public void UpdateUser(int id, string login, string password)
+        public int Registration(User user)
         {
-            var user = TryGetUserByIdAndThrowIfNotFound(id);
-            user.Login = login;
-            user.Password = password;
+            _dbContext.Users.Add(user);
+
+            _dbContext.SaveChanges();
+
+            return user.Id;
+        }
+
+        public void UpdateUser(User user)
+        {
+            var oldUser = TryGetUserByIdAndThrowIfNotFound(user.Id);
+            oldUser.Login = user.Login;
+            _dbContext.SaveChanges();
         }
 
         public void DeleteUser(int id)
         {
             var user = TryGetUserByIdAndThrowIfNotFound(id);
-            _users.Remove(user);
+            _dbContext.Users.Remove(user);
+            _dbContext.SaveChanges();
         }
 
         public User TryGetUserByIdAndThrowIfNotFound(int id)
         {
-            var user = _users.FirstOrDefault(user => user.Id == id);
+            var user = _dbContext.Users.FirstOrDefault(user => user.Id == id);
             if (user == null)
             {
                 throw new UserNotFoundException(id);
