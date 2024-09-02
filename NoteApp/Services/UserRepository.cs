@@ -7,13 +7,11 @@ namespace NoteApp.Services
 {
     public class UserRepository : IUserRepository
     {
-        private readonly ITimeProvider _timeProvider;
 
         private readonly NoteAppDbContext _dbContext;
 
-        public UserRepository(ITimeProvider timeProvider, NoteAppDbContext dbContext)
+        public UserRepository(NoteAppDbContext dbContext)
         {
-            _timeProvider = timeProvider;
             _dbContext = dbContext;
         }
 

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NoteApp.Abstractions;
 using NoteApp.Exceptions;
@@ -9,15 +10,14 @@ namespace NoteApp.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class UserController : Controller
     {
-        private readonly ITimeProvider _timeProvider;
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
-        public UserController(IUserRepository userRepository, ITimeProvider timeProvider, IMapper mapper)
+        public UserController(IUserRepository userRepository, IMapper mapper)
         {
-            _timeProvider = timeProvider;
             _userRepository = userRepository;
             _mapper = mapper;
         }

@@ -6,21 +6,21 @@ using NoteApp.Models.DbSet;
 using AutoMapper;
 using NoteApp.Services;
 using NoteApp.Models.Contracts;
+using Microsoft.AspNetCore.Authorization;
 namespace NoteApp.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class NoteController : Controller
     {
-        private readonly ITimeProvider _timeProvider;
         private readonly INoteRepository _noteRepository;
         private readonly IMapper _mapper;
 
-        public NoteController(INoteRepository noteRepository, IMapper mapper, ITimeProvider timeProvider)
+        public NoteController(INoteRepository noteRepository, IMapper mapper)
         {
             _noteRepository = noteRepository;
             _mapper = mapper;
-            _timeProvider = timeProvider;
         }
 
 
