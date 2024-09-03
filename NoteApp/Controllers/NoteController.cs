@@ -7,6 +7,7 @@ using AutoMapper;
 using NoteApp.Services;
 using NoteApp.Models.Contracts;
 using Microsoft.AspNetCore.Authorization;
+using NoteApp.Services.Extentions;
 namespace NoteApp.Controllers
 {
     [ApiController]
@@ -24,7 +25,8 @@ namespace NoteApp.Controllers
         }
 
 
-        [HttpGet("{userId}")]
+        [HttpGet("list_of_notes")]
+        [Authorize(Policy = "NotesOwner")]
         public ActionResult<NoteListVm> GetNotes(int userId)
         {
             var userNotes = _noteRepository.GetNotes(userId);
@@ -34,6 +36,7 @@ namespace NoteApp.Controllers
         }
 
         [HttpGet("by_id")]
+        [Authorize(Policy = "NotesOwner")]
         public ActionResult<DetailedNoteVm> GetNoteBy(int id, int userId)
         {
             var userNote = _noteRepository.GetNoteBy(id, userId);
@@ -41,9 +44,10 @@ namespace NoteApp.Controllers
             return Ok(mappedUserNote);
         }
 
-        [HttpPost("{userId}")]
-        public ActionResult<int> AddNote(int userId, CreateNoteDto createNoteDto)
+        [HttpPost("add_note")]
+        public ActionResult<int> AddNote(CreateNoteDto createNoteDto)
         {
+            var userId = HttpContext.ExtractUserIdFromClaims()!.Value;
             var note = _mapper.Map<Note>(createNoteDto);    
             
             var noteId = _noteRepository.AddNote(userId, note);
@@ -51,7 +55,8 @@ namespace NoteApp.Controllers
             return Ok(noteId);
         }
 
-        [HttpPut("{userId}")]
+        [HttpPut("change_note")]
+        [Authorize(Policy = "NotesOwner")]
         public ActionResult UpdateNote(
             int id,
             int userId,
@@ -62,11 +67,12 @@ namespace NoteApp.Controllers
             return Ok();
         }
 
-        [HttpDelete("{userId}")]
+        [HttpDelete("delete_note")]
+        [Authorize(Policy = "NotesOwner")]
         public ActionResult DeleteNote(int id, int userId)
         {
             _noteRepository.DeleteNote(id, userId);
-            return NoContent();
+            return Ok();
         }
 
     }

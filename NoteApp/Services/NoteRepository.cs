@@ -36,7 +36,7 @@ namespace NoteApp.Services
         public int AddNote(int userId,
             Note note)
         {
-            var owner = _userRepository.TryGetUserByIdAndThrowIfNotFound(userId);
+            var owner = _userRepository.TryGetUserByIdAndThrowIfNotFound(userId); // нужна ли эта проверка?
             note.Owner = owner;
             _dbContext.Notes.Add(note);
             _dbContext.SaveChanges();

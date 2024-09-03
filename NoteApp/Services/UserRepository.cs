@@ -42,7 +42,7 @@ namespace NoteApp.Services
         public string Login(User user)
         {
             var logUser = _dbContext.Users.FirstOrDefault(u => u.Login == user.Login);
-            if (logUser != null)
+            if (logUser == null)
             {
                 throw new ArgumentException(nameof(user));
             }
