@@ -57,6 +57,7 @@ namespace NoteApp.Services
             note.Priority = newNote.Priority;
             note.Description = newNote.Description;
             note.LastModifiedDate = newNote.LastModifiedDate;
+            _dbContext.SaveChanges();
         }
 
         public void DeleteNote(int id, int userId)
@@ -64,6 +65,7 @@ namespace NoteApp.Services
             _ = _userRepository.TryGetUserByIdAndThrowIfNotFound(userId);
             var note = TryGetNoteByIdAndThrowIfNotFound(id);
             _dbContext.Notes.Remove(note);
+            _dbContext.SaveChanges();
         }
 
         private Note TryGetNoteByIdAndThrowIfNotFound(int id)
