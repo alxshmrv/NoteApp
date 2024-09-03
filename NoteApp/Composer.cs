@@ -28,7 +28,7 @@ namespace NoteApp
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
             services.AddAuthentication();
-            services.AddAuthorization();
+            services.AddAuthorizationWithSettings();
 
             services.Configure<NoteAppDbConnectionSettings>(
                 configuration.GetRequiredSection(

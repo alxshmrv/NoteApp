@@ -22,7 +22,7 @@ namespace NoteApp.Controllers
             _mapper = mapper;
         }
 
-
+        [AllowAnonymous]
         [HttpGet]
         public ActionResult<ListOfUsers> GetUsers()
         {
@@ -30,6 +30,7 @@ namespace NoteApp.Controllers
             return Ok(_mapper.Map<ListOfUsers>(users));
         }
 
+        [AllowAnonymous]
         [HttpGet("by_login")]
         public ActionResult GetUserBy(string login)
         {
@@ -42,13 +43,30 @@ namespace NoteApp.Controllers
             return Ok(_mapper.Map<UserVm>(user));
         }
 
-        [HttpPost]
-        public ActionResult<int> Registration(CreateUserDto dto)
+        [AllowAnonymous]
+        [HttpPost("register")]
+        public ActionResult<string> Registration(CreateUserDto dto)
         {
             var newUser = _mapper.Map<User>(dto);
 
-            var userId = _userRepository.Registration(newUser);
-            return Ok(userId);
+            var token = _userRepository.Registration(newUser);
+            return Ok(token);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("login")]
+        public ActionResult<string> Login(CreateUserDto dto)
+        {
+            var loginUser = _mapper.Map<User>(dto);
+            var token = _userRepository.Login(loginUser);
+            return Ok(token);
+        }
+
+        [HttpDelete("logout")]
+        public IActionResult Logout(int userId)
+        {
+            _userRepository.Logout(userId);
+            return Ok();
         }
 
         [HttpPut("{id}")]

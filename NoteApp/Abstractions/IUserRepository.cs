@@ -9,7 +9,10 @@ namespace NoteApp.Abstractions
         User? GetUserById(int id);
         User? GetUserByLogin(string login);
 
-        int Registration(User user);
+        string Registration(User user);
+
+        string Login(User user);
+        void Logout(int userId);
 
         void UpdateUser(User user);
 

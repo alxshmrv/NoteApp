@@ -7,12 +7,16 @@ namespace NoteApp.Services
 {
     public class UserRepository : IUserRepository
     {
+        private readonly IJwtTokenGenerator _jwtTokenGenerator;
+        private readonly IJwtTokensRepository _jwtTokensRepository;
 
         private readonly NoteAppDbContext _dbContext;
 
-        public UserRepository(NoteAppDbContext dbContext)
+        public UserRepository(NoteAppDbContext dbContext, IJwtTokensRepository jwtTokensRepository, IJwtTokenGenerator jwtTokenGenerator)
         {
             _dbContext = dbContext;
+            _jwtTokensRepository = jwtTokensRepository;
+            _jwtTokenGenerator = jwtTokenGenerator;
         }
 
         public IEnumerable<User> GetUsers() => _dbContext.Users;
@@ -23,13 +27,38 @@ namespace NoteApp.Services
         public User? GetUserByLogin(string login)
             => _dbContext.Users.FirstOrDefault(user => user.Login == login.Trim());
 
-        public int Registration(User user)
+        public string Registration(User user)
         {
             _dbContext.Users.Add(user);
 
             _dbContext.SaveChanges();
 
-            return user.Id;
+            var token = _jwtTokenGenerator.GenerateToken(user);
+            _jwtTokensRepository.Update(user.Id, token);
+
+            return token;
+        }
+
+        public string Login(User user)
+        {
+            var logUser = _dbContext.Users.FirstOrDefault(u => u.Login == user.Login);
+            if (logUser != null)
+            {
+                throw new ArgumentException(nameof(user));
+            }
+            if (logUser.Password != user.Password)
+            {
+                throw new ArgumentException(nameof(logUser));
+            }
+            var token = _jwtTokenGenerator.GenerateToken(logUser);
+            _jwtTokensRepository.Update(logUser.Id, token);
+
+            return token;
+        }
+
+        public void Logout(int userId)
+        {
+            _jwtTokensRepository.Remove(userId);
         }
 
         public void UpdateUser(User user)

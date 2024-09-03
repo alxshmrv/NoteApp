@@ -8,7 +8,7 @@ using System.Text;
 
 namespace NoteApp.Services.Extentions
 {
-    public static class AuthenticationExtantion
+    public static class AuthenticationExtention
     {
 
         public static IServiceCollection AddAuth(
@@ -58,6 +58,7 @@ namespace NoteApp.Services.Extentions
                         }
                     };
                 });
+            services.AddAuthorization();
             return services;
         }
     }
